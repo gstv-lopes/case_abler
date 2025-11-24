@@ -1,0 +1,1270 @@
+import React, { useState, useEffect } from 'react';
+import { 
+  BarChart3, 
+  Search, 
+  MessageCircle, 
+  Target, 
+  Shield, 
+  Zap, 
+  PieChart, 
+  Calendar, 
+  Smartphone, 
+  Layout, 
+  ChevronDown, 
+  ChevronUp,
+  ArrowRight,
+  CheckCircle2,
+  Menu,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  TrendingUp,
+  Bot,
+  PenTool,
+  UserCircle,
+  Linkedin,
+  User // Ícone para a seção Sobre
+} from 'lucide-react';
+
+// ... existing code for Section ...
+const Section = ({ id, title, icon: Icon, children, className = "", headerClassName = "mb-8" }) => (
+  <section id={id} className={`py-12 md:py-20 border-b border-slate-200 last:border-0 ${className}`}>
+    <div className={`flex items-center gap-3 ${headerClassName}`}>
+      <div className="p-3 bg-blue-600 rounded-lg text-white shadow-lg shadow-blue-600/20 shrink-0">
+        <Icon size={24} className="md:w-7 md:h-7" />
+      </div>
+      <h2 className="text-2xl md:text-3xl font-bold text-slate-800 tracking-tight">{title}</h2>
+    </div>
+    {children}
+  </section>
+);
+
+// ... existing code for Card ...
+const Card = ({ title, subtitle, children, accentColor = "blue" }) => {
+  const colors = {
+    blue: "border-l-blue-600 bg-blue-50/50",
+    indigo: "border-l-indigo-600 bg-indigo-50/50",
+    emerald: "border-l-emerald-600 bg-emerald-50/50",
+    purple: "border-l-purple-600 bg-purple-50/50",
+    orange: "border-l-orange-600 bg-orange-50/50",
+    cyan: "border-l-cyan-600 bg-cyan-50/50",
+  };
+
+  return (
+    <div className={`bg-white p-6 rounded-xl shadow-sm border border-slate-100 border-l-4 ${colors[accentColor]} hover:shadow-md transition-all duration-300 h-full`}>
+      <h3 className="text-lg md:text-xl font-bold text-slate-800 mb-1">{title}</h3>
+      {subtitle && <p className="text-xs md:text-sm text-slate-500 font-medium uppercase tracking-wider mb-4">{subtitle}</p>}
+      <div className="text-sm md:text-base text-slate-600 leading-relaxed">
+        {children}
+      </div>
+    </div>
+  );
+};
+
+// ... existing code for ProgressBar ...
+const ProgressBar = ({ label, percentage, color, value }) => (
+  <div className="mb-6">
+    <div className="flex justify-between mb-2 text-sm md:text-base">
+      <span className="font-bold text-slate-700">{label}</span>
+      <span className="font-bold text-slate-700">{value}</span>
+    </div>
+    <div className="w-full bg-slate-200 rounded-full h-3 overflow-hidden">
+      <div 
+        className={`h-3 rounded-full ${color} transition-all duration-1000 ease-out`} 
+        style={{ width: `${percentage}%` }}
+      ></div>
+    </div>
+  </div>
+);
+
+// ... existing code for AccordionItem ...
+const AccordionItem = ({ title, children, isOpen, onClick }) => (
+  <div className="border border-slate-200 rounded-lg mb-3 overflow-hidden bg-white">
+    <button 
+      className="w-full px-4 md:px-6 py-4 flex justify-between items-center bg-slate-50 hover:bg-slate-100 transition-colors text-left"
+      onClick={onClick}
+    >
+      <span className="font-bold text-slate-700 text-sm md:text-base pr-4">{title}</span>
+      {isOpen ? <ChevronUp size={20} className="text-slate-400 shrink-0" /> : <ChevronDown size={20} className="text-slate-400 shrink-0" />}
+    </button>
+    <div className={`transition-all duration-300 ease-in-out ${isOpen ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0'}`}>
+      <div className="p-4 md:p-6 text-slate-600 border-t border-slate-100 text-sm md:text-base">
+        {children}
+      </div>
+    </div>
+  </div>
+);
+
+// ... existing code for Carousel ...
+const Carousel = ({ 
+  items, 
+  icon: Icon = Shield, 
+  iconColor = "text-orange-500", 
+  activeColor = "bg-orange-500",
+  contentHeightClass = "min-h-[260px]" 
+}) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const nextSlide = () => {
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % items.length);
+  };
+
+  const prevSlide = () => {
+    setCurrentIndex((prevIndex) => (prevIndex - 1 + items.length) % items.length);
+  };
+
+  return (
+    <div className="relative bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col w-full">
+      <div className="p-6 pb-24 flex-grow"> 
+        <div className={`${contentHeightClass} flex flex-col justify-start`}> 
+          <div className="transition-opacity duration-300 ease-in-out flex-grow">
+            <h4 className={`text-lg md:text-xl font-bold text-slate-800 mb-4 flex items-center gap-2`}>
+              <Icon size={24} className={`${iconColor} shrink-0`} />
+              <span className="leading-tight">{items[currentIndex].title}</span>
+            </h4>
+            <div className="text-sm md:text-base text-slate-600 leading-relaxed">
+              {items[currentIndex].content}
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Controls */}
+      <div className="absolute bottom-0 left-0 right-0 bg-slate-50 px-4 py-3 border-t border-slate-100 flex justify-between items-center">
+        <button 
+          onClick={prevSlide}
+          className="p-2 rounded-full hover:bg-slate-200 text-slate-600 transition-colors"
+          aria-label="Previous slide"
+        >
+          <ChevronLeft size={20} />
+        </button>
+        
+        <div className="flex gap-2">
+          {items.map((_, idx) => (
+            <div 
+              key={idx} 
+              className={`w-2 h-2 rounded-full transition-all ${idx === currentIndex ? `${activeColor} w-4` : 'bg-slate-300'}`}
+            />
+          ))}
+        </div>
+
+        <button 
+          onClick={nextSlide}
+          className="p-2 rounded-full hover:bg-slate-200 text-slate-600 transition-colors"
+          aria-label="Next slide"
+        >
+          <ChevronRight size={20} />
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default function CasePresentation() {
+  // ... existing state and effects ...
+  const [activeSection, setActiveSection] = useState('about'); // Set default to 'about'
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [openAccordion, setOpenAccordion] = useState(null);
+  const [currentCaptionIndex, setCurrentCaptionIndex] = useState(0);
+
+  const toggleAccordion = (index) => {
+    setOpenAccordion(openAccordion === index ? null : index);
+  };
+
+  const socialCaptions = [
+    {
+      id: 1,
+      text: (
+        <>
+          Quem nunca se perdeu em meio a tantas conversas no WhatsApp com candidatos? 🤯
+          <br/><br/>
+          O cenário é clássico: você mistura mensagens pessoais com profissionais, perde o histórico do que foi negociado e gasta horas alternando entre o ATS e o celular.
+          <br/><br/>
+          Chegou a hora de mudar isso. Apresentamos o <strong>Abler Conversas</strong>! 💬
+          <br/>
+          Agora você pode:
+          <br/><br/>
+          ✅ Enviar mensagens de WhatsApp direto pela plataforma.<br/>
+          ✅ Salvar todo o histórico automaticamente no perfil do candidato.<br/>
+          ✅ Manter seu número pessoal... pessoal.
+          <br/><br/>
+          Centralize sua comunicação e ganhe tempo. Clique no link da bio e veja como funciona! 🚀
+          <br/><br/>
+          <span className="text-blue-600">#Recrutamento #RH #TechRecruiter #Produtividade #Abler</span>
+        </>
+      )
+    },
+    {
+      id: 2,
+      text: (
+        <>
+          É assim que se parece um recrutamento ágil de verdade. 👇
+          <br/><br/>
+          Sem trocar de abas. Sem pegar o celular. Sem perder informações.
+          <br/><br/>
+          Com o novo módulo <strong>Abler Conversas</strong>, o WhatsApp do candidato está a um clique de distância, integrado perfeitamente ao seu fluxo de triagem.
+          <br/><br/>
+          Assista ao vídeo e imagine quanto tempo você economizaria hoje ⏳
+          <br/><br/>
+          👉 Quer testar na sua operação? Link nos comentários e na bio.
+          <br/><br/>
+          <span className="text-blue-600">#ATS #InovaçãoRH #Abler #Recrutamento #Seleção #WhatsAppBusiness</span>
+        </>
+      )
+    }
+  ];
+
+  const nextCaption = () => {
+    setCurrentCaptionIndex((prev) => (prev + 1) % socialCaptions.length);
+  };
+
+  const prevCaption = () => {
+    setCurrentCaptionIndex((prev) => (prev - 1 + socialCaptions.length) % socialCaptions.length);
+  };
+
+  const navItems = [
+    { id: 'about', label: 'Sobre Mim', icon: User },
+    { id: 'intro', label: 'Visão Estratégica', icon: Target },
+    { id: 'part1', label: 'Mídia Paga', icon: PieChart },
+    { id: 'part2', label: 'SEO', icon: Search },
+    { id: 'part3', label: 'Campanha Inbound', icon: MessageCircle },
+    { id: 'conclusion', label: 'Conclusão', icon: CheckCircle2 },
+  ];
+
+  const scrollTo = (id) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+      setActiveSection(id);
+      setMobileMenuOpen(false);
+    }
+  };
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const sections = navItems.map(item => document.getElementById(item.id));
+      const scrollPosition = window.scrollY + 150;
+
+      sections.forEach(section => {
+        if (section && section.offsetTop <= scrollPosition && (section.offsetTop + section.offsetHeight) > scrollPosition) {
+          setActiveSection(section.id);
+        }
+      });
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const riskStrategies = [
+    {
+      title: "Aumento Gradual",
+      content: (
+        <>
+          <p className="mb-3">Não dobrarei o orçamento do dia para a noite. Farei incrementos de 20% a cada 5 dias nas campanhas com os melhores resultados.</p>
+          <p className="text-xs md:text-sm bg-orange-50 p-3 rounded border border-orange-100 text-orange-800">
+            Aumentos bruscos fazem os algoritmos (Google/Meta) perderem a referência de otimização, entrando em fase de aprendizado e gastando mal. A escala gradual mantém a inteligência da campanha.
+          </p>
+        </>
+      )
+    },
+    {
+      title: "Lista de Exclusão Compartilhada",
+      content: (
+        <>
+          <p className="mb-3">Criarei (se não existir) uma lista de termos negativos (ex: "vagas", "grátis", "login", "suporte", "currículo") aplicada a todas as campanhas do Google Ads.</p>
+          <p className="text-xs md:text-sm bg-orange-50 p-3 rounded border border-orange-100 text-orange-800">
+            Um dos maiores riscos de um SaaS em RH é pagar pelos cliques de candidatos e não de empresas. Essa "higiene" de tráfego é vital para manter o CPL saudável.
+          </p>
+        </>
+      )
+    },
+    {
+      title: "Monitoramento de Custo por MQL",
+      content: (
+        <>
+          <p className="mb-3">Aceitaria um CPL momentaneamente mais alto no LinkedIn (ex: R$ 200) se o Meta Ads conseguir entregar MQLs a R$ 100, mantendo a média global próxima aos R$ 150.</p>
+          <p className="text-xs md:text-sm bg-orange-50 p-3 rounded border border-orange-100 text-orange-800">
+            O importante é o custo médio da operação, não o custo isolado de um único canal.
+          </p>
+        </>
+      )
+    }
+  ];
+
+  const kpiStrategies = [
+    {
+      title: "KPI Primário (North Star)",
+      content: (
+        <>
+          <p className="text-xs font-bold text-emerald-600 uppercase tracking-wider mb-3">Volume de MQLs Absoluto</p>
+          <p className="text-slate-600 leading-relaxed">
+            A principal meta já está clara: é o crescimento de 50%. Este é o número que define o sucesso do projeto e para o qual todas as estratégias e esforços vão apontar.
+          </p>
+        </>
+      )
+    },
+    {
+      title: "KPI de Guardrail (Controle)",
+      content: (
+        <>
+          <p className="text-xs font-bold text-emerald-600 uppercase tracking-wider mb-3">Taxa de Conversão Lead → MQL</p>
+          <p className="text-slate-600 leading-relaxed">
+            Hoje é de 90%. Ao abrirmos canais de Outbound/Push (Meta e LinkedIn), é natural que essa taxa caia um pouco (para cerca de 70%). Se cair abaixo de 50%, significa que a segmentação precisa de ajustes e precisaremos refinar os públicos.
+          </p>
+        </>
+      )
+    },
+    {
+      title: "KPI Financeiro (ROI)",
+      content: (
+        <>
+          <p className="text-xs font-bold text-emerald-600 uppercase tracking-wider mb-3">Custo por Oportunidade no CRM</p>
+          <p className="text-slate-600 leading-relaxed">
+            Mais importante que o custo do lead, é saber quanto custou para colocar uma oportunidade real na mão do vendedor. Isso valida se o investimento nas campanhas está se pagando.
+          </p>
+        </>
+      )
+    }
+  ];
+
+  const seoCalendarStrategies = [
+    {
+      title: "Mês 1: Auditoria Técnica, Defesa e CRO",
+      content: (
+        <>
+          <p className="mb-3"><strong>• Entregas:</strong> Relatório de Saúde Técnica (com correções solicitadas ao time técnico), Revisão de CTAs nos Top 10 Artigos e Atualização (se necessária) das principais páginas.</p>
+          <p className="text-xs md:text-sm bg-blue-50 p-3 rounded border border-blue-100 text-blue-800">
+            O primeiro mês será usado para ajustes técnicos e para melhorar a taxa de conversão do tráfego que já existe. Por exemplo, trocar um banner genérico por um CTA contextual no meio do texto, para aumentar a conversão de MQLs, sem aumentar propriamente o número de visitas.
+          </p>
+        </>
+      )
+    },
+    {
+      title: "Mês 2: Otimização Histórica e Combate ao \"Content Decay\"",
+      content: (
+        <>
+          <p className="mb-3"><strong>• Entregas:</strong> Atualização de 3 a 5 artigos antigos fundamentais que perderam tráfego nos últimos meses e reforço de Linkagem Interna (Topic Clusters).</p>
+          <p className="text-xs md:text-sm bg-blue-50 p-3 rounded border border-blue-100 text-blue-800">
+            Artigos mais antigos perdem relevância com o tempo. Atualizá-los é mais barato e traz resultados mais rápidos do que criar novos. Já a linkagem interna serve para transferir a autoridade da Home ou páginas específicas para esses artigos mais estratégicos.
+          </p>
+        </>
+      )
+    },
+    {
+      title: "Mês 3: Novos Conteúdos de Fundo de Funil",
+      content: (
+        <>
+          <p className="mb-3"><strong>• Entregas:</strong> Criação de páginas comparativas (ex: "Abler vs Concorrente X") e listas de "Melhores Ferramentas para [setor ou função específicos]".</p>
+          <p className="text-xs md:text-sm bg-blue-50 p-3 rounded border border-blue-100 text-blue-800">
+            Estamos buscando MQLs. Quem pesquisa "Abler vs Gupy" ou "Melhor software para consultoria de RH" está mais próximo do fechamento (ex.: com o orçamento aprovado, alguns contatos feitos etc.). O volume de busca é baixo, mas a taxa de conversão é bem alta para esse tipo de conteúdo.
+          </p>
+        </>
+      )
+    }
+  ];
+
+  const seoMetricsStrategies = [
+    {
+      title: "Dashboard de Atribuição (HubSpot)",
+      content: (
+        <>
+          <p className="mb-3">Monitorar quantos contatos tiveram como Original Source a "Organic Search".</p>
+          <p className="text-xs md:text-sm bg-blue-50 p-3 rounded border border-blue-100 text-blue-800">
+            Precisamos provar o ROI. Saber que o SEO trouxe 50 leads é bom, saber que ele trouxe R$ 50k em pipeline é excelente.
+          </p>
+        </>
+      )
+    },
+    {
+      title: "Monitoramento de Ranking (Semrush/GSC)",
+      content: (
+        <>
+          <p className="mb-3">Acompanhar um set fixo de 20 palavras-chave transacionais.</p>
+          <p className="text-xs md:text-sm bg-blue-50 p-3 rounded border border-blue-100 text-blue-800">
+            Se cairmos de 2º para 5º em "software de recrutamento", por exemplo, precisamos atuar na mesma semana, não no fim do mês.
+          </p>
+        </>
+      )
+    },
+    {
+      title: "Health Score & Core Web Vitals (Lighthouse)",
+      content: (
+        <>
+          <p className="mb-3">Manter as notas de performance acima de 90 (mobile/desktop).</p>
+          <p className="text-xs md:text-sm bg-blue-50 p-3 rounded border border-blue-100 text-blue-800">
+            Performance é um pré-requisito para competir nas primeiras posições hoje.
+          </p>
+        </>
+      )
+    }
+  ];
+
+  return (
+    <div className="min-h-screen bg-slate-50 font-sans text-slate-800 selection:bg-blue-100 selection:text-blue-900">
+      
+      {/* Mobile Header */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 bg-white z-50 px-6 py-4 shadow-sm flex justify-between items-center">
+        <div className="font-bold text-xl text-blue-600">Case Abler</div>
+        <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="p-2 text-slate-600 focus:outline-none">
+          {mobileMenuOpen ? <X /> : <Menu />}
+        </button>
+      </div>
+
+      {/* Mobile Menu Overlay */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 bg-white z-40 pt-20 px-6 lg:hidden overflow-y-auto">
+          <div className="flex flex-col space-y-4">
+            {navItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => scrollTo(item.id)}
+                className={`text-lg font-medium py-3 px-4 rounded-lg text-left flex items-center gap-3 ${activeSection === item.id ? 'bg-blue-50 text-blue-600' : 'text-slate-600'}`}
+              >
+                <item.icon size={20} />
+                {item.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="flex max-w-7xl mx-auto">
+        
+        {/* Sidebar Navigation (Desktop) */}
+        <aside className="hidden lg:block w-72 fixed h-screen overflow-y-auto bg-white border-r border-slate-200 px-6 py-12">
+          <div className="mb-10">
+            <h1 className="text-2xl font-extrabold text-blue-700 tracking-tight">Case Técnico</h1>
+            <p className="text-slate-400 font-medium text-sm mt-1">Vaga Analista de Marketing</p>
+          </div>
+          
+          <nav className="space-y-2">
+            {navItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => scrollTo(item.id)}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  activeSection === item.id 
+                    ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20' 
+                    : 'text-slate-600 hover:bg-slate-50 hover:text-blue-600'
+                }`}
+              >
+                <item.icon size={18} />
+                {item.label}
+              </button>
+            ))}
+          </nav>
+
+          <div className="mt-20 pt-8 border-t border-slate-100">
+            <div className="flex items-center gap-3">
+              {/* Atualização da foto no menu lateral */}
+              <div className="w-12 rounded-lg overflow-hidden border border-slate-200 shrink-0 shadow-sm">
+                 <img 
+                   src="https://i.ibb.co/4RFWSbCz/Retratos-SIS-Gustavo-02.jpg" 
+                   alt="GL" 
+                   className="w-full h-auto object-cover"
+                   onError={(e) => {e.target.onerror = null; e.target.src = "https://via.placeholder.com/100x100?text=GL"}}
+                 />
+              </div>
+              <div>
+                <p className="text-sm font-bold text-slate-800">Gustavo Lopes</p>
+                <a href="https://linkedin.com/in/gstvlopes" target="_blank" rel="noopener noreferrer" className="text-xs text-slate-500 flex items-center gap-1 hover:text-blue-600 transition-colors">
+                  <Linkedin size={12} /> @gstvlopes
+                </a>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        {/* Main Content */}
+        <main className="flex-1 lg:ml-72 p-6 md:p-12 lg:p-20 pt-24 lg:pt-16 min-w-0"> {/* min-w-0 prevents flex child overflow */}
+
+          {/* NEW SECTION: Sobre Mim */}
+          <Section id="about" title="Sobre Mim" icon={User} className="pt-0 border-none" headerClassName="mb-4">
+             <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-8 md:p-10 text-white shadow-xl flex flex-col md:flex-row items-center md:items-start gap-8 mb-12">
+               
+               {/* Photo - Integrated */}
+               <div className="shrink-0 order-1 md:order-1">
+                 {/* Alterado de rounded-full para rounded-2xl e ajustadas as dimensões para mostrar toda a foto */}
+                 <div className="relative w-48 md:w-64 rounded-2xl overflow-hidden border-4 border-white/20 shadow-2xl transform hover:scale-105 transition-transform duration-300">
+                   <img 
+                     src="https://i.ibb.co/4RFWSbCz/Retratos-SIS-Gustavo-02.jpg" 
+                     alt="Gustavo Lopes" 
+                     className="w-full h-auto" // h-auto garante que a proporção da imagem seja mantida
+                     onError={(e) => {e.target.onerror = null; e.target.src = "https://via.placeholder.com/200x200?text=Gustavo+Lopes"}}
+                   />
+                 </div>
+               </div>
+
+               {/* Text Bio */}
+               <div className="flex-1 space-y-5 text-slate-300 text-base md:text-lg leading-relaxed text-center md:text-left order-2 md:order-2">
+                 <p>
+                   Olá, tenho 27 anos (com carinha de 30) e mais de 8 anos de carreira. Sou um profissional de Marketing e Comunicação que adora colocar a mão na massa, sem abandonar o estratégico!
+                 </p>
+                 <p>
+                   Minha paixão é criar estratégias digitais e offline que realmente geram impacto positivo. Minha trajetória abrange desde o planejamento e ideação, passa pela criação de conteúdo e design, e vai até a análise de KPIs e gestão de equipes criativas, o que me proporciona uma visão 360° para otimizar campanhas e, claro, gerar resultado.
+                 </p>
+                 <p>
+                   Ao longo da minha jornada, me dediquei ao desenvolvimento e execução de estratégias de marketing B2B e B2C, sempre com foco em inteligência de mercado e na otimização de funis de marketing e vendas. Já fiz de tudo um pouco, e escolhi conscientemente ser um profissional mais generalista.
+                 </p>
+                 <p className="font-bold text-white pt-2">
+                   Vamos gerar valor real juntos?
+                 </p>
+               </div>
+
+             </div>
+          </Section>
+          
+          {/* Intro Section */}
+          <Section id="intro" title="Visão Estratégica" icon={Target} className="" headerClassName="mb-4">
+            <div className="grid lg:grid-cols-3 gap-6 mb-12">
+              
+              {/* Main Context Card */}
+              <div className="lg:col-span-2 bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-6 md:p-8 text-white shadow-xl flex flex-col justify-center">
+                <h1 className="text-2xl md:text-3xl font-bold mb-4 leading-tight">Estratégia de Mídia Paga<br />e Escala</h1>
+                <p className="text-slate-300 text-sm md:text-base leading-relaxed mb-4">
+                  Para lidar com o desafio de duplicar o investimento (de R$ 15k para R$ 30k) e atingir um crescimento de 50% no volume de MQLs em 60 dias, minha abordagem se baseia na premissa de <strong>Eficiência e Expansão de Canais.</strong>
+                </p>
+                <p className="text-slate-300 text-sm md:text-base leading-relaxed mb-4">
+                  O cenário atual da Abler é extremamente positivo (90% de conversão Lead → MQL), o que indica que estão capturando com excelência a demanda existente (fundo de funil).
+                </p>
+                <p className="text-slate-300 text-sm md:text-base leading-relaxed">
+                  No entanto, simplesmente dobrar a verba nos mesmos canais traria o risco de saturação e o aumento desproporcional do CPL (Custo por Lead).
+                </p>
+              </div>
+
+              {/* New Focus Card */}
+              <div className="lg:col-span-1 bg-blue-600 rounded-2xl p-6 md:p-8 text-white shadow-xl flex flex-col justify-center h-full">
+                <h3 className="text-2xl md:text-3xl font-bold mb-6 border-b border-blue-400 pb-2 leading-tight">Por isso, minha estratégia<br />foca em:</h3>
+                <div className="space-y-4">
+                  <div className="flex gap-3">
+                    <div className="font-bold text-xl md:text-2xl text-blue-200">1</div>
+                    <p className="font-medium leading-snug text-sm md:text-base">Maximizar o share de busca atual</p>
+                  </div>
+                  <div className="flex gap-3">
+                    <div className="font-bold text-xl md:text-2xl text-blue-200">2</div>
+                    <p className="font-medium leading-snug text-sm md:text-base">Gerar nova demanda qualificada via canais sociais (Social Ads).</p>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </Section>
+
+          {/* Part 1: Paid Media */}
+          <Section id="part1" title="Parte 1: Mídia Paga" icon={PieChart}>
+            <div className="mb-8">
+              <p className="text-base md:text-lg text-slate-600 mb-6">
+                Proponho a seguinte alocação tática dos R$ 30.000,00 mensais:
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+              
+              {/* LEFT COLUMN */}
+              <div className="bg-white p-6 md:p-8 rounded-xl shadow-sm border border-slate-200 h-full">
+                <h3 className="text-lg md:text-xl font-bold mb-6 flex items-center gap-2">
+                  <PieChart className="text-blue-600" size={20}/> 
+                  Distribuição de Budget
+                </h3>
+                <ProgressBar 
+                  label="Google Ads (50%)" 
+                  percentage={50} 
+                  value="R$ 15.000" 
+                  color="bg-blue-600" 
+                />
+                <ProgressBar 
+                  label="Meta Ads (25%)" 
+                  percentage={25} 
+                  value="R$ 7.500" 
+                  color="bg-purple-600" 
+                />
+                <ProgressBar 
+                  label="LinkedIn Ads (25%)" 
+                  percentage={25} 
+                  value="R$ 7.500" 
+                  color="bg-cyan-600" 
+                />
+                
+                {/* Campaign Tactics Section inside Left Column */}
+                <div className="mt-8 pt-8 border-t border-slate-100">
+                  <h4 className="font-bold text-base md:text-lg mb-4 text-slate-800">
+                    Táticas de Campanha: O que Reforçar, Manter, Pausar e Iniciar
+                  </h4>
+                  <p className="text-slate-600 text-sm md:text-base leading-relaxed mb-6">
+                    Minha gestão das campanhas seguirá a seguinte lógica operacional:
+                  </p>
+
+                  {/* Tactic Cards */}
+                  <div className="bg-slate-50 p-5 rounded-xl border border-slate-200 shadow-sm mb-4">
+                    <div className="flex items-start justify-between mb-2">
+                      <h5 className="font-bold text-slate-800 text-base md:text-lg">MANTER e OTIMIZAR: Google Search</h5>
+                    </div>
+                    <p className="text-xs font-bold text-blue-600 uppercase tracking-wider mb-3">
+                      Institucional e Palavras-chave Fundo de Funil
+                    </p>
+                    <p className="text-slate-600 text-sm leading-relaxed">
+                      Manter as campanhas atuais de "plataforma ATS" e "software de recrutamento", com foco em manter o Índice de Qualidade alto.
+                      <br/><br/>
+                      Esta é a base de sustentação da meta atual. Qualquer alteração brusca aqui coloca em risco o resultado já consolidado. O foco será apenas refinar os anúncios para melhorar o CTR.
+                    </p>
+                  </div>
+
+                  <div className="bg-slate-50 p-5 rounded-xl border border-slate-200 shadow-sm mb-4">
+                    <div className="flex items-start justify-between mb-2">
+                      <h5 className="font-bold text-slate-800 text-base md:text-lg">INICIAR: Google Search e Display</h5>
+                    </div>
+                    <p className="text-xs font-bold text-blue-600 uppercase tracking-wider mb-3">
+                      Campanha de Concorrentes Diretos
+                    </p>
+                    <p className="text-slate-600 text-sm leading-relaxed">
+                      Criar campanhas apostando em palavras-chave envolvendo concorrentes (ex: Gupy, Kenoby, Sólides), com anúncios comparativos ("Por que a Abler é a melhor alternativa à [Concorrente]?").
+                      <br/><br/>
+                      Um usuário que busca pelo nome do concorrente já está em momento de compra e educado sobre a solução. Capturar esse lead gera MQLs com ciclo de vendas mais curto. É uma estratégia agressiva, mas necessária para atingir +50% de volume rápido.
+                    </p>
+                  </div>
+
+                  <div className="bg-slate-50 p-5 rounded-xl border border-slate-200 shadow-sm mb-4">
+                    <div className="flex items-start justify-between mb-2">
+                      <h5 className="font-bold text-slate-800 text-base md:text-lg">INICIAR: LinkedIn Ads</h5>
+                    </div>
+                    <p className="text-xs font-bold text-blue-600 uppercase tracking-wider mb-3">
+                      Segmentação por Cargo e Setor
+                    </p>
+                    <p className="text-slate-600 text-sm leading-relaxed">
+                      Campanhas de Sponsored Content (Imagem Única e Document Ads) focadas estritamente em decisores de RH de PMEs e donos de consultorias.
+                      <br/><br/>
+                      No LinkedIn, pagamos pela certeza do cargo. Isso serve como um "filtro de qualidade" na entrada. Se o Google começar a trazer leads desqualificados com o aumento da verba, o LinkedIn equilibra a balança trazendo leads com Fit garantido.
+                    </p>
+                  </div>
+
+                  <div className="bg-slate-50 p-5 rounded-xl border border-slate-200 shadow-sm mb-4">
+                    <div className="flex items-start justify-between mb-2">
+                      <h5 className="font-bold text-slate-800 text-base md:text-lg">REFORÇAR: Meta Ads</h5>
+                    </div>
+                    <p className="text-xs font-bold text-blue-600 uppercase tracking-wider mb-3">
+                      Lookalike de MQLs
+                    </p>
+                    <p className="text-slate-600 text-sm leading-relaxed">
+                      Migrar de campanhas de "reforço de marca" (Alcance) para campanhas de Conversão.
+                      <br/><br/>
+                      Utilizarei públicos Lookalike (Semelhantes) de 1% a 3% com base na lista de MQLs atuais da Abler.
+                      <br/><br/>
+                      Com essa estratégia, é possível encontrar gestores de RH que não estão necessariamente buscando no Google, mas que têm o perfil ideal.
+                    </p>
+                  </div>
+
+                  <div className="bg-slate-50 p-5 rounded-xl border border-slate-200 shadow-sm mb-4">
+                    <div className="flex items-start justify-between mb-2">
+                      <h5 className="font-bold text-slate-800 text-base md:text-lg">PAUSAR ou EVITAR</h5>
+                    </div>
+                    <p className="text-xs font-bold text-blue-600 uppercase tracking-wider mb-3">
+                      Termos Genéricos e Rede de Display Abrangente
+                    </p>
+                    <p className="text-slate-600 text-sm leading-relaxed">
+                      Não investiria em termos amplos, como "como fazer recrutamento" ou rede de display com segmentações mais abrangentes neste primeiro momento.
+                      <br/><br/>
+                      O foco é performance de curto prazo (2 meses). Termos amplos trazem muitos estudantes e curiosos, o que drenaria o orçamento e o tempo do time comercial, prejudicando a eficiência do CPL.
+                    </p>
+                  </div>
+
+                </div>
+              </div>
+
+              {/* RIGHT COLUMN */}
+              <div className="space-y-4 flex flex-col">
+                 <Card title="Google Ads" subtitle="Estratégia" accentColor="blue">
+                    Manteria o valor absoluto que já performa, mas agora representando 50% do share da verba. O Google captura a intenção de compra já existente.
+                    <br/><br/>
+                    Não dobrei este valor para R$ 27k (90% do novo budget) porque o volume de buscas por "software de recrutamento" é finito. Insistir em gastar tudo aqui inflacionaria o CPC (Custo por Clique) sem trazer o volume proporcional de leads.
+                 </Card>
+                 <Card title="Meta Ads" subtitle="Estratégia" accentColor="purple">
+                    Meta Ads (Facebook/Instagram) oferece o menor CPM (Custo por Mil Impressões) do mercado B2B. Como a base de clientes e MQLs é de alta qualidade, o algoritmo será extremamente eficiente em encontrar perfis semelhantes (Lookalikes) a um custo baixo, dando volume à operação.
+                 </Card>
+                 <Card title="LinkedIn Ads" subtitle="Estratégia" accentColor="cyan">
+                    A entrada no LinkedIn é estratégica, para garantir a qualidade.
+                    <br/><br/>
+                    Embora o CPL seja mais alto, a segmentação por cargo (ex. Donos de Consultorias, Diretores de RH) garante que a mensagem realmente chegue ao decisor.
+                    <br/><br/>
+                    É um investimento em qualidade de pipeline para compensar a eventual queda de conversão natural ao expandirmos para públicos um pouco mais frios.
+                 </Card>
+
+                 {/* CPL Control Section with Carousel */}
+                 <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 border-l-4 border-l-orange-500 my-12"> {/* Increased spacing */}
+                    <h3 className="text-lg md:text-xl font-bold text-slate-800 mb-2">Controle de CPL e Mitigação de Riscos</h3>
+                    <p className="text-slate-600 text-sm md:text-base mb-6">Para evitar que o CPL dispare com o aumento da verba, aplicarei três estratégias de segurança:</p>
+                    <Carousel 
+                      items={riskStrategies} 
+                      contentHeightClass="min-h-[420px] md:min-h-[320px]" // Adjusted height for Mídia Paga
+                    />
+                 </div>
+
+                 {/* NEW: KPI Section with Carousel */}
+                 <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 border-l-4 border-l-emerald-500">
+                    <h3 className="text-lg md:text-xl font-bold text-slate-800 mb-2">Indicadores de Sucesso (KPIs)</h3>
+                    <p className="text-slate-600 text-sm md:text-base mb-6">Para medir a eficácia das estratégias e considerar ajustes de rota, acompanharei:</p>
+                    <Carousel 
+                      items={kpiStrategies} 
+                      icon={TrendingUp} 
+                      iconColor="text-emerald-500" 
+                      activeColor="bg-emerald-500"
+                      contentHeightClass="min-h-[420px] md:min-h-[320px]" // Adjusted height for Mídia Paga
+                    />
+                 </div>
+
+              </div>
+            </div>
+
+            {/* AI & Automation Section */}
+            <div className="mt-12 bg-gradient-to-br from-blue-600 to-blue-800 rounded-2xl p-6 md:p-8 text-white shadow-xl">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-2 bg-white/10 rounded-lg backdrop-blur-sm">
+                  <Bot size={24} className="text-blue-100" />
+                </div>
+                <h3 className="text-xl md:text-2xl font-bold">Aplicação de IA e Automação</h3>
+              </div>
+
+              <p className="text-blue-100 text-base md:text-lg leading-relaxed mb-8 max-w-4xl">
+                Existem muitas formas de implementar IA e automação no processo de análise e otimização de campanhas, separei alguns casos que utilizaria essas tecnologias para poupar tempo e aumentar a precisão das atividades:
+              </p>
+
+              <div className="grid md:grid-cols-3 gap-6">
+                {/* Card 1 */}
+                <div className="bg-white/10 rounded-xl p-6 backdrop-blur-sm border border-white/10 hover:bg-white/20 transition-colors">
+                  <h4 className="font-bold text-lg text-white mb-1">Qualificação Preditiva</h4>
+                  <p className="text-blue-200 text-xs font-bold uppercase tracking-wider mb-4">(HubSpot + Make ou Zapier)</p>
+                  <p className="text-blue-50 text-sm leading-relaxed mb-3">
+                    Implementaria Lead Scoring automatizado. Leads que preencherem cargos como "estudante" ou "candidato" serão desqualificados automaticamente via automação diretamente no HubSpot.
+                  </p>
+                  <p className="text-blue-50 text-sm leading-relaxed">
+                    Com o aumento de volume, não podemos sobrecarregar o time humano filtrando leads ruins. A automação garante que Vendas foque apenas nos MQLs reais.
+                  </p>
+                </div>
+
+                {/* Card 2 */}
+                <div className="bg-white/10 rounded-xl p-6 backdrop-blur-sm border border-white/10 hover:bg-white/20 transition-colors">
+                  <h4 className="font-bold text-lg text-white mb-1">Análise de Dados</h4>
+                  <p className="text-blue-200 text-xs font-bold uppercase tracking-wider mb-4">(ChatGPT, Gemini ou Manus)</p>
+                  <p className="text-blue-50 text-sm leading-relaxed mb-3">
+                    Exportaria semanalmente os dados brutos das campanhas para análise com IA, mapeando correlações entre "Criativo x Taxa de Conversão" ou "Horário x Alcance", por exemplo.
+                  </p>
+                  <p className="text-blue-50 text-sm leading-relaxed">
+                    A IA consegue identificar padrões em planilhas grandes mais rápido que o olho humano, permitindo ajustes de rota ágeis (ex: descobrir que sábado tem custo alto e conversão zero, e pausar a campanha nesse dia).
+                  </p>
+                </div>
+
+                {/* Card 3 */}
+                <div className="bg-white/10 rounded-xl p-6 backdrop-blur-sm border border-white/10 hover:bg-white/20 transition-colors">
+                  <h4 className="font-bold text-lg text-white mb-1">Otimização de Anúncios</h4>
+                  <p className="text-blue-200 text-xs font-bold uppercase tracking-wider mb-4">(ChatGPT, Gemini ou Genspark)</p>
+                  <p className="text-blue-50 text-sm leading-relaxed mb-3">
+                    Contextualizaria agentes de IA para identificarem melhorias em títulos, copys, CTAs e outros elementos dos melhores anúncios de cada campanha.
+                  </p>
+                  <p className="text-blue-50 text-sm leading-relaxed">
+                    Assim conseguiríamos criar variações dos ativos que mais converterem para cada um dos canais em que trabalharíamos, além de utilizarmos para testes A/B.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+          </Section>
+
+          {/* Part 2: SEO */}
+          <Section id="part2" title="Parte 2: SEO: Estratégia e Performance Orgânica" icon={Search}>
+             <div className="mb-8">
+              <p className="text-base md:text-lg text-slate-600 mb-4 leading-relaxed">
+                Para a frente de SEO da Abler, esta é minha leitura de cenário: têm um ativo valioso (300 artigos e autoridade de domínio) que precisa ser lapidado. O foco aqui deixa de ser apenas <strong>Volume</strong> (trazer mais gente) e passa a ser <strong>Eficiência</strong> (trazer a pessoa certa e garantir que a experiência no site contribua para a conversão).
+              </p>
+              <p className="text-base md:text-lg text-slate-600 mb-6 leading-relaxed">
+                Minha estratégia para os primeiros 90 dias se baseará no tripé: <strong>Excelência Técnica, Defesa de Posições e Conversão de Fundo de Funil.</strong>
+              </p>
+            </div>
+
+            {/* Timeline Visual */}
+            <div className="mb-12">
+              <h3 className="text-xl md:text-2xl font-bold text-slate-800 mb-4">Diagnóstico e Priorização (Os Primeiros 90 Dias)</h3>
+              <p className="text-slate-600 mb-8 text-sm md:text-base leading-relaxed">
+                Antes de escrever uma única linha de conteúdo novo, minha prioridade zero será garantir que a "casa" esteja em ordem. De nada adianta ter o melhor artigo se a página demora 10 segundos para carregar ou se o Google não consegue rastreá-la de forma eficiente.
+              </p>
+
+              <div className="relative pl-4 md:pl-8 border-l-2 border-slate-200 space-y-12">
+                <div className="relative">
+                  <div className="absolute -left-[25px] md:-left-[41px] bg-blue-600 text-white w-6 h-6 md:w-8 md:h-8 rounded-full flex items-center justify-center font-bold text-xs md:text-sm">A</div>
+                  <h3 className="text-lg md:text-xl font-bold text-slate-800 mb-2">Auditoria Técnica e "Health Check" (Prioridade Imediata)</h3>
+                  <div className="bg-slate-50 p-4 rounded-lg border border-slate-100 text-sm md:text-base space-y-3">
+                    <p className="text-slate-600">
+                      <strong>Ação:</strong> Rodar uma auditoria completa com o Semrush (para saúde geral, link building e erros de rastreamento) e Google Lighthouse (para performance, acessibilidade e Core Web Vitals).
+                    </p>
+                    <p className="text-slate-600">
+                      <strong>Motivo:</strong> O Google prioriza a Experiência da Página (Page Experience Update). Problemas como CLS (layout instável) ou LCP (carregamento lento) penalizam o ranking. Identificar e corrigir gargalos técnicos (ex: imagens pesadas, scripts de bloqueio, tags canônicas erradas) gera “Quick Wins”: melhoras de posicionamento baseadas puramente em performance, sem custo de mídia ou produção de conteúdo.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="relative">
+                   <div className="absolute -left-[25px] md:-left-[41px] bg-blue-600 text-white w-6 h-6 md:w-8 md:h-8 rounded-full flex items-center justify-center font-bold text-xs md:text-sm">B</div>
+                  <h3 className="text-lg md:text-xl font-bold text-slate-800 mb-2">Diagnóstico de Conteúdo com a Regra de Pareto (80/20)</h3>
+                  <div className="bg-slate-50 p-4 rounded-lg border border-slate-100 text-sm md:text-base space-y-3">
+                    <p className="text-slate-600">
+                      <strong>Ação:</strong> Cruzar dados do Google Search Console (GSC) e HubSpot para identificar os 20% das páginas que trazem 80% dos MQLs atuais.
+                    </p>
+                    <p className="text-slate-600">
+                      <strong>Motivo:</strong> Precisamos proteger a receita. Se perdermos posição em uma página muito estratégica, o impacto no pipeline de vendas é imediato. Saber quais são as páginas exatas blinda a operação contra quedas bruscas.
+                    </p>
+                  </div>
+                </div>
+
+                 <div className="relative">
+                   <div className="absolute -left-[25px] md:-left-[41px] bg-blue-600 text-white w-6 h-6 md:w-8 md:h-8 rounded-full flex items-center justify-center font-bold text-xs md:text-sm">C</div>
+                  <h3 className="text-xl font-bold text-slate-800 mb-2">Identificação de Oportunidades de "Striking Distance"</h3>
+                  <div className="bg-slate-50 p-4 rounded-lg border border-slate-100 text-sm md:text-base space-y-3">
+                    <p className="text-slate-600">
+                       <strong>Ação:</strong> Filtrar palavras-chave de alta intenção que hoje rankeiam entre a 4ª e a 10ª posição (final da primeira página).
+                    </p>
+                    <p className="text-slate-600">
+                       <strong>Motivo:</strong> O esforço para levar uma palavra da 8ª para a 3ª posição é muito menor do que rankear um conteúdo novo do zero. Além disso, subir para o Top 3 pode triplicar o CTR (Taxa de Cliques). É o caminho mais curto para aumentar volume qualificado.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <h3 className="text-lg md:text-xl font-bold mb-4 flex items-center gap-2">
+              <Calendar className="text-blue-600" size={24}/> Estrutura do Calendário Trimestral
+            </h3>
+            <p className="text-slate-600 mb-6 text-sm md:text-base">
+              Não focarei no "volume de posts", mas sim no impacto deles. <br className="hidden md:block"/>
+              Meu mix de esforços será: <strong>20% Técnico | 50% Otimização | 30% Novos Conteúdos.</strong>
+            </p>
+            
+            {/* Replaced 3-column grid with Full-width Carousel */}
+            <div className="w-full">
+               <Carousel 
+                 items={seoCalendarStrategies} 
+                 icon={Calendar} 
+                 iconColor="text-blue-600" 
+                 activeColor="bg-blue-600" 
+                 contentHeightClass="min-h-[320px] md:min-h-[240px]"
+                />
+            </div>
+
+            {/* NEW: SEO Metrics Carousel */}
+            <div className="mt-12">
+              <h3 className="text-lg md:text-xl font-bold mb-4 flex items-center gap-2">
+                <BarChart3 className="text-blue-600" size={24}/> Critérios e Métricas de Acompanhamento
+              </h3>
+              <p className="text-slate-600 mb-6 text-sm md:text-base">
+                Para medir o sucesso, fugirei das "métricas de vaidade" (como tráfego geral ou impressões).
+              </p>
+              <div className="w-full">
+                 <Carousel 
+                   items={seoMetricsStrategies} 
+                   icon={BarChart3} 
+                   iconColor="text-blue-600" 
+                   activeColor="bg-blue-600" 
+                   contentHeightClass="min-h-[280px] md:min-h-[220px]"
+                  />
+              </div>
+            </div>
+
+            {/* NEW: AI for SEO Strategy Section */}
+            <div className="mt-12 bg-gradient-to-br from-blue-600 to-blue-800 rounded-2xl p-6 md:p-8 text-white shadow-xl">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-2 bg-white/10 rounded-lg backdrop-blur-sm">
+                  <Bot size={24} className="text-blue-100" />
+                </div>
+                <h3 className="text-xl md:text-2xl font-bold">Uso de IA para Potencializar a Estratégia</h3>
+              </div>
+
+              <p className="text-blue-100 text-base md:text-lg leading-relaxed mb-8 max-w-4xl">
+                A IA pode ser usada para muito mais do que produzir conteúdo, como, por exemplo, na  Análise de Dados e Assistência Técnica:
+              </p>
+
+              <div className="grid md:grid-cols-3 gap-6">
+                {/* Card 1 */}
+                <div className="bg-white/10 rounded-xl p-6 backdrop-blur-sm border border-white/10 hover:bg-white/20 transition-colors">
+                  <h4 className="font-bold text-lg text-white mb-3">Análise Técnica de Código</h4>
+                  <p className="text-blue-50 text-sm leading-relaxed">
+                    Usarei a IA para ler os relatórios JSON do Lighthouse e sugerir as correções exatas de código (CSS/JS) para o time de desenvolvimento. Isso agiliza a implementação técnica.
+                  </p>
+                </div>
+
+                {/* Card 2 */}
+                <div className="bg-white/10 rounded-xl p-6 backdrop-blur-sm border border-white/10 hover:bg-white/20 transition-colors">
+                  <h4 className="font-bold text-lg text-white mb-3">Análise de Lacunas</h4>
+                  <p className="text-blue-50 text-sm leading-relaxed">
+                    Pedirei para a IA analisar os títulos e subtítulos (H1, H2 e H3) dos top 3 concorrentes para determinadas palavras-chave e comparar com os artigos da Abler, listando quais tópicos podem ser abordados, complementados e que ainda não foram explorados.
+                  </p>
+                </div>
+
+                {/* Card 3 */}
+                <div className="bg-white/10 rounded-xl p-6 backdrop-blur-sm border border-white/10 hover:bg-white/20 transition-colors">
+                  <h4 className="font-bold text-lg text-white mb-3">Otimização de CTR</h4>
+                  <p className="text-blue-50 text-sm leading-relaxed">
+                    Usar a IA para gerar variações de Title Tags e Meta Descriptions focadas em gatilhos mentais para as páginas que estão na posição 4-10, visando aumentar a atratividade do clique na SERP.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+          </Section>
+
+          {/* Part 3: Inbound */}
+          <Section id="part3" title="Parte 3 - Campanha Inbound: Lançamento de Feature" icon={MessageCircle}>
+            <p className="text-base md:text-lg text-slate-600 mb-6 leading-relaxed">
+              Para o lançamento do Abler Conversas, minha abordagem foge do genérico "Nova Funcionalidade Disponível". O conceito criativo que guiará tanto a Landing Page quanto as Redes Sociais será:
+            </p>
+
+            <div className="mb-8 bg-blue-50 border border-blue-100 p-6 rounded-xl text-center">
+              <p className="text-blue-800 text-xl md:text-2xl italic">"A velocidade do WhatsApp, a organização da Abler."</p>
+            </div>
+
+            <p className="text-base md:text-lg text-slate-600 mb-12 leading-relaxed">
+              Minha estratégia para estes briefings é centrada em "Dor vs. Solução". O recrutador já usa WhatsApp, mas de forma desorganizada. A missão é mostrar que a Abler traz a governança que faltava para essa agilidade.
+              <br/><br/>
+              Seguem os briefings detalhados:
+            </p>
+
+            <div className="grid lg:grid-cols-2 gap-12">
+              
+              {/* Column 1: LP */}
+              <div>
+                <h3 className="text-lg md:text-xl font-bold mb-6 flex items-center gap-2">
+                  <Layout className="text-purple-600"/> Briefing Landing Page
+                </h3>
+                
+                {/* New Content Block for LP */}
+                <div className="bg-purple-50 border border-purple-100 p-6 rounded-xl mb-6 text-sm md:text-base text-slate-700 space-y-4">
+                   <p>
+                     Esta página não deve ser apenas informativa, ela precisa ser uma ferramenta de conversão. Para clientes atuais, o objetivo é o Upsell ou Adoção. Para leads, esta feature funciona como um diferencial competitivo decisivo (deal breaker).
+                   </p>
+                   <div className="bg-white p-4 rounded-lg border border-purple-100 shadow-sm">
+                     <strong className="block text-purple-700 mb-1">Objetivo da Página:</strong>
+                     Gerar pedidos de demonstração da funcionalidade (para Leads) ou solicitação de ativação (para Clientes), educando sobre a centralização da comunicação.
+                   </div>
+                </div>
+
+                {/* New Accordions for Blocks */}
+                <AccordionItem 
+                  title="1. Hero Section" 
+                  isOpen={openAccordion === 0} 
+                  onClick={() => toggleAccordion(0)}
+                >
+                   <ul className="space-y-3 list-disc list-inside">
+                     <li><strong>O que:</strong> Título forte, Subtítulo explicativo e vídeo curto de 30s (loop em background) mostrando a interface da conversa acontecendo dentro da plataforma.</li>
+                     <li><strong>Porque:</strong> Em SaaS, "ver é crer". O usuário precisa entender em segundos que o chat acontece dentro da Abler.</li>
+                   </ul>
+                </AccordionItem>
+
+                <AccordionItem 
+                  title="2. Bloco da Dor" 
+                  isOpen={openAccordion === 1} 
+                  onClick={() => toggleAccordion(1)}
+                >
+                   <ul className="space-y-3 list-disc list-inside">
+                     <li><strong>O que:</strong> "Cansado de alternar abas e perder histórico?" Ilustração visual do caos (celular tocando, planilhas, notificações de várias mensagens...).</li>
+                     <li><strong>Porque:</strong> Agitar a dor antes de vender a cura aumenta a percepção de valor.</li>
+                   </ul>
+                </AccordionItem>
+
+                <AccordionItem 
+                  title="3. Bloco da Solução (Benefícios)" 
+                  isOpen={openAccordion === 2} 
+                  onClick={() => toggleAccordion(2)}
+                >
+                   <ul className="space-y-3 list-disc list-inside">
+                     <li><strong>Centralização:</strong> Todo o histórico salvo no card do candidato.</li>
+                     <li><strong>Privacidade:</strong> Não use mais seu número pessoal.</li>
+                     <li><strong>Agilidade:</strong> Modelos de mensagem prontos (templates).</li>
+                   </ul>
+                </AccordionItem>
+
+                <AccordionItem 
+                  title="4. Prova Social (Early Adopters)" 
+                  isOpen={openAccordion === 3} 
+                  onClick={() => toggleAccordion(3)}
+                >
+                   <ul className="space-y-3 list-disc list-inside">
+                     <li><strong>O que:</strong> Depoimento de um cliente Beta. "Com o Abler Conversas, reduzimos o tempo de triagem em X%."</li>
+                     <li><strong>Porque:</strong> B2B se move por confiança.</li>
+                   </ul>
+                </AccordionItem>
+
+                <AccordionItem 
+                  title="5. CTA Final (Rodapé)" 
+                  isOpen={openAccordion === 4} 
+                  onClick={() => toggleAccordion(4)}
+                >
+                   <p>Chamada direta para ação.</p>
+                </AccordionItem>
+                
+                <AccordionItem 
+                  title="Boas Práticas de CRO (Otimização de Conversão)" 
+                  isOpen={openAccordion === 5} 
+                  onClick={() => toggleAccordion(5)}
+                >
+                  <div className="bg-gradient-to-r from-purple-50 to-white p-4 rounded-lg border-l-4 border-purple-500">
+                      <ul className="space-y-4">
+                        <li className="flex gap-3 items-start">
+                           <div className="min-w-[20px] pt-1"><CheckCircle2 size={18} className="text-purple-600" /></div>
+                           <div>
+                             <strong className="block text-purple-900 text-sm md:text-base">Remoção de Menu de Navegação:</strong>
+                             <span className="text-slate-700 text-xs md:text-sm">A LP não terá o menu padrão do site (Home, Sobre, Blog). O único caminho é converter ou fechar a aba. Isso evita dispersão.</span>
+                           </div>
+                        </li>
+                        <li className="flex gap-3 items-start">
+                           <div className="min-w-[20px] pt-1"><CheckCircle2 size={18} className="text-purple-600" /></div>
+                           <div>
+                             <strong className="block text-purple-900 text-sm md:text-base">CTA "Sticky" (Fixo):</strong>
+                             <span className="text-slate-700 text-xs md:text-sm">No mobile, o botão de "Quero ativar" ficará fixo no rodapé da tela enquanto o usuário rola a página.</span>
+                           </div>
+                        </li>
+                        <li className="flex gap-3 items-start">
+                           <div className="min-w-[20px] pt-1"><CheckCircle2 size={18} className="text-purple-600" /></div>
+                           <div>
+                             <strong className="block text-purple-900 text-sm md:text-base">Formulário Curto:</strong>
+                             <span className="text-slate-700 text-xs md:text-sm">Se o usuário já é cliente (identificado via cookie ou e-mail), o botão deve pular o formulário. Se for lead, pedir apenas: Nome, E-mail Corporativo e Telefone.</span>
+                           </div>
+                        </li>
+                      </ul>
+                  </div>
+                </AccordionItem>
+
+                {/* New Title for Copy Suggestions */}
+                <h4 className="text-lg md:text-xl font-bold text-slate-800 mt-8 mb-4 flex items-center gap-2">
+                  <PenTool size={20} className="text-purple-600"/> Sugestão de Copy
+                </h4>
+
+                <div className="p-6 bg-slate-900 text-white rounded-xl shadow-lg">
+                  <h4 className="text-xl md:text-2xl font-bold mt-2 mb-2">Fale com candidatos pelo WhatsApp sem sair da Abler.</h4>
+                  <p className="text-slate-300 mb-4 text-sm md:text-base">Centralize conversas, salve histórico automaticamente e separe seu número pessoal do profissional.</p>
+                  <button className="bg-purple-600 text-white px-6 py-2 rounded font-bold w-full text-sm md:text-base">Quero ativar o abler Conversas</button>
+                </div>
+              </div>
+
+              {/* Column 2: Social Media */}
+              <div>
+                 <h3 className="text-lg md:text-xl font-bold mb-6 flex items-center gap-2">
+                  <Smartphone className="text-pink-600"/> Briefing Social Media
+                </h3>
+                
+                {/* New Content Block for Social Media */}
+                <p className="text-slate-600 mb-6 text-sm md:text-base">
+                  Nas redes sociais (LinkedIn e Instagram), o tom será de educação e identificação. Não vamos apenas anunciar, vamos ensinar um "novo jeito de trabalhar".
+                </p>
+                
+                <div className="bg-pink-50 border border-pink-100 p-6 rounded-xl mb-6 text-sm md:text-base text-slate-700">
+                   <div className="bg-white p-4 rounded-lg border border-pink-100 shadow-sm">
+                     <strong className="block text-pink-700 mb-1">Objetivo da Campanha:</strong>
+                     Gerar Awareness (conhecimento) da nova feature e despertar desejo imediato, levando tráfego qualificado para a Landing Page criada.
+                   </div>
+                </div>
+
+                <div className="space-y-4">
+                  <AccordionItem 
+                    title="1. Vídeo/Reels (Demo Rápida)" 
+                    isOpen={openAccordion === 6} 
+                    onClick={() => toggleAccordion(6)}
+                  >
+                    <div className="space-y-3">
+                      <p><strong className="text-pink-700">Conceito:</strong> Gravação de tela (screencast) acelerada. Mostra o recrutador clicando no perfil do candidato na Abler, abrindo a janela de chat e enviando um "Olá". Foco na facilidade de uso (UI/UX).</p>
+                      <p><strong className="text-pink-700">Motivo:</strong> O algoritmo entrega mais vídeos na plataforma. Mostrar a interface bonita quebra a objeção de "será que é difícil usar?".</p>
+                    </div>
+                  </AccordionItem>
+
+                  <AccordionItem 
+                    title="2. Carrossel (Expectativa vs Realidade)" 
+                    isOpen={openAccordion === 7} 
+                    onClick={() => toggleAccordion(7)}
+                  >
+                    <div className="space-y-3">
+                      <p><strong className="text-pink-700">Conceito:</strong> <br/>Slide 1: "Recrutamento antes" (Muitas abas, confusão). <br/>Slide 2: "Recrutamento com Abler Conversas" (Uma tela, tudo organizado).</p>
+                      <p><strong className="text-pink-700">Motivo:</strong> Gera identificação imediata. Todo recrutador sofre com a desorganização do WhatsApp.</p>
+                    </div>
+                  </AccordionItem>
+
+                  <AccordionItem 
+                    title="3. Post Estático (Prova Social)" 
+                    isOpen={openAccordion === 8} 
+                    onClick={() => toggleAccordion(8)}
+                  >
+                    <div className="space-y-3">
+                      <p><strong className="text-pink-700">Conceito:</strong> Card minimalista com uma frase forte: "Seu número pessoal não deveria ser ferramenta de trabalho."</p>
+                      <p><strong className="text-pink-700">Motivo:</strong> Toca na ferida da privacidade do recrutador, um argumento emocional forte.</p>
+                    </div>
+                  </AccordionItem>
+                </div>
+
+                {/* New Title for Captions */}
+                <h4 className="text-lg md:text-xl font-bold text-slate-800 mt-8 mb-4 flex items-center gap-2">
+                  <PenTool size={20} className="text-pink-600"/> Sugestão de Legendas
+                </h4>
+
+                {/* Interactive Phone Mockup */}
+                <div className="mt-6 mx-auto w-full max-w-[320px] relative">
+                   {/* Navigation Arrows Outside Phone */}
+                  <button 
+                    onClick={prevCaption}
+                    className="absolute left-[-20px] md:left-[-40px] top-1/2 -translate-y-1/2 bg-white p-2 rounded-full shadow-md text-pink-600 hover:bg-pink-50 z-10"
+                    aria-label="Previous Caption"
+                  >
+                    <ChevronLeft size={24} />
+                  </button>
+                  
+                  <button 
+                    onClick={nextCaption}
+                    className="absolute right-[-20px] md:right-[-40px] top-1/2 -translate-y-1/2 bg-white p-2 rounded-full shadow-md text-pink-600 hover:bg-pink-50 z-10"
+                    aria-label="Next Caption"
+                  >
+                    <ChevronRight size={24} />
+                  </button>
+
+                  <div className="bg-white border-[8px] border-slate-800 rounded-[2.5rem] shadow-2xl overflow-hidden relative h-[600px] flex flex-col">
+                    
+                    {/* Notch & Status Bar */}
+                    <div className="bg-slate-800 h-7 w-full absolute top-0 left-0 z-20"></div>
+                    <div className="bg-white h-6 w-full flex justify-between items-center px-6 mt-2 text-[10px] font-bold text-black">
+                       <span>9:41</span>
+                       <div className="flex gap-1">
+                          <div className="w-3 h-2 bg-black rounded-sm"></div>
+                          <div className="w-3 h-2 bg-black rounded-sm"></div>
+                          <div className="w-4 h-2 border border-black rounded-sm relative">
+                             <div className="absolute top-0 left-0 h-full w-3/4 bg-black"></div>
+                          </div>
+                       </div>
+                    </div>
+
+                    {/* Content Area - Scrollable */}
+                    <div className="flex-1 overflow-y-auto no-scrollbar bg-slate-50">
+                      {/* Post Header */}
+                      <div className="bg-white p-3 flex items-center justify-between border-b border-slate-100 sticky top-0 z-10">
+                         <div className="flex items-center gap-2">
+                           <UserCircle size={32} className="text-slate-400" /> {/* Replaced gradient div with Icon */}
+                           <div>
+                              <p className="text-xs font-bold text-slate-900">ableroficial</p> {/* Changed text */}
+                              <p className="text-[10px] text-slate-500">Patrocinado</p>
+                           </div>
+                         </div>
+                         <div className="text-slate-400">•••</div>
+                      </div>
+
+                      {/* Post Image/Video Placeholder */}
+                      <div className="aspect-square bg-slate-200 flex items-center justify-center text-slate-400 text-xs relative">
+                        [Vídeo/Imagem da Campanha]
+                        {/* Overlay CTA like Instagram */}
+                        <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/60 to-transparent flex justify-between items-end">
+                           <div className="bg-blue-600 text-white text-[10px] font-bold py-1 px-3 rounded">Saiba mais</div>
+                        </div>
+                      </div>
+
+                      {/* Action Bar */}
+                      <div className="bg-white p-3 flex justify-between items-center">
+                         <div className="flex gap-3 text-slate-800">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                         </div>
+                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+                      </div>
+
+                      {/* Caption Area - DYNAMIC */}
+                      <div className="px-3 pb-4 bg-white">
+                        <p className="text-sm font-bold text-slate-900 mb-1">1.240 curtidas</p>
+                        <div className="text-xs text-slate-800 leading-relaxed transition-opacity duration-300">
+                           <span className="font-bold mr-1">ableroficial</span> {/* Changed text */}
+                           {socialCaptions[currentCaptionIndex].text}
+                        </div>
+                        <p className="text-[10px] text-slate-400 mt-2 uppercase">HÁ 2 HORAS</p>
+                      </div>
+                    </div>
+
+                    {/* Bottom Nav Bar */}
+                    <div className="h-12 bg-white border-t border-slate-200 flex justify-around items-center px-4 shrink-0">
+                       <div className="w-6 h-6 rounded-full bg-slate-900"></div>
+                       <Search size={20} className="text-slate-400" />
+                       <div className="w-6 h-6 border-2 border-slate-900 rounded-md flex items-center justify-center"><div className="w-2 h-2 bg-slate-900"></div></div>
+                       <MessageCircle size={20} className="text-slate-400" />
+                       <div className="w-5 h-5 rounded-full bg-slate-300"></div>
+                    </div>
+
+                    {/* Home Indicator */}
+                    <div className="h-1 w-1/3 bg-slate-300 rounded-full mx-auto mb-2"></div>
+                  </div>
+                  
+                  {/* Indicators */}
+                  <div className="flex justify-center gap-2 mt-4">
+                    {socialCaptions.map((_, idx) => (
+                      <div 
+                        key={idx} 
+                        className={`w-2 h-2 rounded-full transition-all ${idx === currentCaptionIndex ? 'bg-pink-600 w-4' : 'bg-slate-300'}`}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </Section>
+
+          {/* Conclusion */}
+          <Section id="conclusion" title="Conclusão" icon={CheckCircle2} className="border-none pb-20">
+            <div className="bg-white p-6 md:p-12 rounded-2xl border border-slate-200 shadow-sm text-center">
+              <h3 className="text-2xl md:text-3xl font-bold text-slate-800 mb-8">Resumo da Minha Proposta para o Case</h3>
+              
+              <div className="grid md:grid-cols-3 gap-8 text-left mb-10">
+                <div className="space-y-3 bg-blue-50 p-5 rounded-xl border border-blue-100">
+                  <div className="w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center mb-2 font-bold text-xl shadow-md shadow-blue-200">1</div>
+                  <h4 className="font-bold text-lg text-blue-900">Escala Sustentável</h4>
+                  <p className="text-slate-700 text-sm leading-relaxed">Mídia paga com diversificação inteligente e foco em qualidade de MQL, evitando a dependência de um único canal.</p>
+                </div>
+                <div className="space-y-3 bg-emerald-50 p-5 rounded-xl border border-emerald-100">
+                   <div className="w-12 h-12 bg-emerald-600 text-white rounded-full flex items-center justify-center mb-2 font-bold text-xl shadow-md shadow-emerald-200">2</div>
+                  <h4 className="font-bold text-lg text-emerald-900">Excelência Técnica</h4>
+                  <p className="text-slate-700 text-sm leading-relaxed">SEO focado em performance (Core Web Vitals) e conversão de fundo de funil, priorizando receita sobre volume vazio.</p>
+                </div>
+                <div className="space-y-3 bg-purple-50 p-5 rounded-xl border border-purple-100">
+                   <div className="w-12 h-12 bg-purple-600 text-white rounded-full flex items-center justify-center mb-2 font-bold text-xl shadow-md shadow-purple-200">3</div>
+                  <h4 className="font-bold text-lg text-purple-900">Produto & Dor</h4>
+                  <p className="text-slate-700 text-sm leading-relaxed">Lançamentos que resolvem problemas reais (caos no WhatsApp) e geram valor imediato para o cliente.</p>
+                </div>
+              </div>
+
+              <div className="max-w-3xl mx-auto space-y-8">
+                <p className="text-slate-600 text-base md:text-lg leading-relaxed">
+                  Essa abordagem integrada demonstra um pouco da minha experiência e visão para atuar como um profissional de marketing 360º, que entende de técnica (código/dados), estratégia (investimento) e criatividade (copy/conteúdo).
+                </p>
+
+                <div className="inline-block">
+                  <a 
+                    href="https://linkedin.com/in/gstvlopes" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="inline-block bg-slate-900 text-white font-bold text-lg px-8 py-4 rounded-full shadow-lg hover:bg-blue-600 hover:scale-105 hover:shadow-blue-500/30 transition-all duration-300 transform"
+                  >
+                    Vamos marcar uma reunião para avançar no processo? ☕
+                  </a>
+                </div>
+              </div>
+              
+              <div className="mt-16 pt-8 border-t border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4 text-sm">
+                <div className="text-left">
+                  <p className="font-bold text-lg text-slate-800">Gustavo Lopes</p>
+                  <a href="https://linkedin.com/in/gstvlopes" target="_blank" rel="noopener noreferrer" className="text-slate-500 flex items-center gap-2 hover:text-blue-600 transition-colors">
+                    <Linkedin size={16} /> @gstvlopes
+                  </a>
+                </div>
+                <button 
+                  onClick={() => scrollTo('intro')}
+                  className="flex items-center gap-2 text-blue-600 font-bold hover:bg-blue-50 px-4 py-2 rounded-lg transition-colors"
+                >
+                  Voltar ao topo <ChevronUp size={18}/>
+                </button>
+              </div>
+            </div>
+          </Section>
+
+        </main>
+      </div>
+    </div>
+  );
+}
